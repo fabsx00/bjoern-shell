@@ -1,0 +1,49 @@
+#!python
+
+import argparse
+import urllib.request
+from bjoernshell.bjoern_code import BjoernInteractiveConsole
+
+
+def connect(args):
+    BjoernInteractiveConsole().interact(args.server, args.shellport)
+
+
+def listshells(args):
+    listshells = "http://{}:{}/listshells/".format(args.server, args.port)
+    print(urllib.request.urlopen(listshells).read().decode().strip())
+
+
+def createshell(args):
+    createshell = "http://{}:{}/shellcreate/{}".format(args.server, args.port, args.dbname)
+    urllib.request.urlopen(createshell).read().decode()
+
+
+parser = argparse.ArgumentParser(description="Bjosh -- an interactive shell for bjoern.")
+parser.add_argument("-s", "--server",
+                    default="localhost",
+                    help="the host name of the server")
+parser.add_argument("-p", "--port",
+                    type=int,
+                    default=2480,
+                    help="the port number")
+subparsers = parser.add_subparsers(title="Commands")
+connect_parser = subparsers.add_parser("connect",
+                                       help="connect to remote shell")
+connect_parser.add_argument("shellport",
+                            type=int,
+                            help="the port of the shell")
+connect_parser.set_defaults(process=connect)
+list_parser = subparsers.add_parser("list",
+                                    help="list open shells")
+list_parser.add_argument("--dbname",
+                         help="list only shells connected to this database")
+list_parser.set_defaults(process=listshells)
+create_parser = subparsers.add_parser("create",
+                                      help="create new shell")
+create_parser.add_argument("dbname",
+                           help="create remote shell for this database")
+create_parser.set_defaults(process=createshell)
+
+args = parser.parse_args()
+args.process(args)
