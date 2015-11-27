@@ -1,6 +1,6 @@
 # bjoern-shell
 
-To install bjoern-shel run
+To install bjoern-shell run
 ```
 python3 setup.py install [--user]
 ```
