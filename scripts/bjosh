@@ -6,7 +6,13 @@ from bjoernshell.bjoern_code import BjoernInteractiveConsole
 
 
 def connect(args):
-    BjoernInteractiveConsole().interact(args.server, args.shellport)
+    bjosh = BjoernInteractiveConsole()
+    bjosh.connect(args.server, args.shellport)
+    if args.file:
+        bjosh.runsource(args.file.read())
+    else:
+        bjosh.interact()
+    bjosh.disconnect()
 
 
 def listshells(args):
@@ -33,6 +39,11 @@ connect_parser = subparsers.add_parser("connect",
 connect_parser.add_argument("shellport",
                             type=int,
                             help="the port of the shell")
+connect_parser.add_argument("file",
+                            type=argparse.FileType('r'),
+                            nargs="?",
+                            default=None)
+
 connect_parser.set_defaults(process=connect)
 list_parser = subparsers.add_parser("list",
                                     help="list open shells")

@@ -11,7 +11,7 @@ class BjoernConnection(object):
         self.socket.connect((self.host, self.port))
 
     def request(self, request):
-        request = "{}\n".format(request.strip())
+        request = "{}\n{}\n".format(request.strip(), "\0")
         request = request.encode()
         self.socket.sendall(request)
 

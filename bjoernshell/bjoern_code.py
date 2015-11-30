@@ -19,27 +19,29 @@ class BjoernInteractiveConsole(code.InteractiveConsole):
 
     def runsource(self, source, filename="<input>", symbol="single"):
         try:
-            self.write(self.bjoern.run(source))
-            self.write('\n')
+            response = self.bjoern.run(source)
         except Exception as e:
             print(e)
+        if "[MultipleCompilationErrorsException]" in response:
+            return True
+        self.write(response)
+        self.write('\n')
         return False
 
     def interact(self, host="localhost", port=6000):
         self._load_prompt()
         self._load_banner()
-        self._connect(host, port)
         self._init_readline()
         self._load_history()
         super().interact(self.banner)
         self._save_history()
 
-    def _connect(self, host, port):
+    def connect(self, host, port):
         self.bjoern_connection = BjoernConnection(host, port)
         self.bjoern_connection.connect()
         self.bjoern = BjoernInterface(self.bjoern_connection)
 
-    def _disconnect(self):
+    def disconnect(self):
         self.bjoern_connection.close()
 
     def _init_readline(self):
