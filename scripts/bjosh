@@ -46,4 +46,7 @@ create_parser.add_argument("dbname",
 create_parser.set_defaults(process=createshell)
 
 args = parser.parse_args()
-args.process(args)
+if not hasattr(args, 'process'):
+    parser.print_help()
+else:
+    args.process(args)
