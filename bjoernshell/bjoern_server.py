@@ -11,7 +11,7 @@ class BjoernConnection(object):
         self.socket.connect((self.host, self.port))
 
     def request(self, request):
-        request = "{}\n{}\n".format(request.strip(), "\0")
+        request = "{}\0".format(request.strip())
         request = request.encode()
         self.socket.sendall(request)
 
@@ -21,14 +21,14 @@ class BjoernConnection(object):
             chunk = self.socket.recv(2048)
             response += chunk
             try:
-                if response[-2] == 0x00:
+                if response[-1] == 0x00:
                     break
             except:
                 pass
 
-        response = response.decode().strip()
+        response = response[:-1].decode().strip()
+        return response
 
-        return response[:-1].strip()
 
     def close(self):
         self._socket.close()
