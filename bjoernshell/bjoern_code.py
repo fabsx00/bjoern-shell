@@ -2,26 +2,23 @@ import code
 import os
 import readline
 import sys
-from bjoernshell.completer.bjoern_rlcompleter import BjoernCompleter
 
-from .bjoern_server import BjoernInterface
-from .bjoern_server import BjoernConnection
+from bjoernshell.completer.bjoern_rlcompleter import BjoernCompleter
 
 HISTORY_FILE = "~/.bjoern_history"
 
 
 class BjoernInteractiveConsole(code.InteractiveConsole):
-    def __init__(self, locals=None, filename="<console>"):
-        super().__init__(locals, filename)
+    def __init__(self, bjoern, locals=None, filename="<console>"):
+        super().__init__(locals=locals, filename=filename)
+        self.bjoern = bjoern
         self.history_file = os.path.expanduser(HISTORY_FILE)
-        self.bjoern_connection = None
-        self.bjoern = None
 
     def runsource(self, source, filename="<input>", symbol="single"):
         try:
             response = self.bjoern.run(source)
         except Exception as e:
-            print(e)
+            response = str(e)
         if "[MultipleCompilationErrorsException]" in response:
             return True
         self.write(response)
@@ -35,14 +32,6 @@ class BjoernInteractiveConsole(code.InteractiveConsole):
         self._load_history()
         super().interact(self.banner)
         self._save_history()
-
-    def connect(self, host, port):
-        self.bjoern_connection = BjoernConnection(host, port)
-        self.bjoern_connection.connect()
-        self.bjoern = BjoernInterface(self.bjoern_connection)
-
-    def disconnect(self):
-        self.bjoern_connection.close()
 
     def _init_readline(self):
         readline.parse_and_bind("tab: complete")

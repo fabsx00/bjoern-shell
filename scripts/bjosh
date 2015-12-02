@@ -2,17 +2,23 @@
 
 import argparse
 import urllib.request
+
 from bjoernshell.bjoern_code import BjoernInteractiveConsole
+from bjoernshell.bjoern_server import BjoernConnection, BjoernInterface
 
 
 def connect(args):
-    bjosh = BjoernInteractiveConsole()
-    bjosh.connect(args.server, args.shellport)
+    bjoern_connection = BjoernConnection(args.server, args.shellport)
+    bjoern_connection.connect()
+    bjoern = BjoernInterface(bjoern_connection)
+    bjosh = BjoernInteractiveConsole(bjoern)
+
     if args.file:
         bjosh.runsource(args.file.read())
     else:
         bjosh.interact()
-    bjosh.disconnect()
+
+    bjoern_connection.close()
 
 
 def listshells(args):
