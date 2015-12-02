@@ -15,12 +15,20 @@ class BjoernInteractiveConsole(code.InteractiveConsole):
         self.history_file = os.path.expanduser(HISTORY_FILE)
 
     def runsource(self, source, filename="<input>", symbol="single"):
+        if not source:
+            return False
+
         try:
             response = self.bjoern.run(source)
+            if "[MultipleCompilationErrorsException]" in response:
+                # incomplete input
+                return True
         except Exception as e:
             response = str(e)
-        if "[MultipleCompilationErrorsException]" in response:
-            return True
+
+        if not response:
+            return False
+
         self.write(response)
         self.write('\n')
         return False
